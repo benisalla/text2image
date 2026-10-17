@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tiny-prism"
+version = "0.1.0"
+description = "tiny-prism: nine modern text-to-image architectures (U-Net DDPM, DiT, JiT, MMDiT, single-stream DiT, autoregressive, MaskGIT, VAR, MAR) implemented from scratch, small enough to train and compare on a CPU."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+keywords = [
+  "text-to-image", "diffusion", "flow-matching", "rectified-flow", "dit", "mmdit", "stable-diffusion",
+  "flux", "autoregressive", "maskgit", "var", "mar", "vq-vae", "pytorch", "from-scratch",
+]
+dependencies = ["numpy>=1.24", "pillow>=10", "torch>=2.4"]
+
+[project.scripts]
+tinyprism-train = "tinyprism.train:main"
+tinyprism-sample = "tinyprism.sample:main"
+tinyprism-eval = "tinyprism.evaluate:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.9"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tinyprism"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E741", "B905"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
