@@ -23,6 +23,7 @@ draw 128 random prompts. The oracle scores each generated image (see below):
 
 | model | family | params | color | shape | position | size | all 4 correct | train time (CPU) | sampling / image |
 |---|---|---|---|---|---|---|---|---|---|
+| `unet` | diffusion (DDPM) | 1.17M | 100% | 100% | 100% | 100% | **100%** | 77 min | 781 ms |
 | `unet-eps` | diffusion (DDPM) | 1.17M | 62% | 38% | 11% | 60% | **3%** | 72 min | 2659 ms |
 | `dit` | flow matching | 0.95M | 100% | 32% | 100% | 90% | **25%** | 37 min | 113 ms |
 | `jit` | flow matching (x-prediction) | 0.95M | 100% | 50% | 100% | 100% | **50%** | 23 min | 111 ms |
@@ -42,25 +43,29 @@ Per-model 4-sample grids are in [`results/`](results/); tokenizer reconstruction
 
 **What the numbers say** (at this tiny scale and budget):
 
-* **Every architecture learns text conditioning.** All transformer models get colour and position near 100%;
-  random guessing would give 17% and 11%.
-* **Token models win on shape at equal steps.** The VQ decoder handles the fine pixel detail, so the transformer
-  only has to pick 64 codes. MaskGIT (77%), MAR (70%) and VAR (65%) lead. VAR also samples fastest:
-  six parallel steps, one per scale.
-* **x-prediction doubles DiT's score.** JiT and DiT use the same network and differ only in what it predicts.
-  Predicting the clean image instead of the velocity takes all-correct from 25% to 50%,
-  which agrees with the claim of *Back to Basics* (Li & He, 2025) for pixel-space transformers.
-* **Flow transformers get layout right but blur shapes.** At 2,000 steps the pixel-space DiT, MMDiT and single-stream
+* **Every architecture learns text conditioning.** All of them get colour and position well above chance
+  (17% and 11% for random guessing); 9 of 10 get both at 80-100%.
+* **The convolutional U-Net with v-prediction is the clear winner at this scale: 100%.** Convolutions have
+  exactly the right inductive bias for small, local, pixel-exact shapes, and it is the only model whose samples
+  draw even the small crosses crisply. Transformers trade that bias for scalability, which pays off only at
+  scales far beyond this toy.
+* **The prediction target is decisive for diffusion.** `unet` and `unet-eps` are the *same network*, trained the
+  same way; only the regression target differs. ε-prediction (the original DDPM / SD 1.x objective) scores 3%:
+  near pure noise, recovering x₀ from ε divides by √ᾱ ≈ 0, so small errors explode exactly where the global layout
+  is decided, and position accuracy falls to chance (11%). Lowering guidance makes it worse (0-3%), which rules out
+  over-guidance. v-prediction (SD 2.x) stays well-conditioned there and scores 100%.
+* **The same lesson holds for transformers.** JiT and DiT are also one network with two targets: predicting the
+  clean image instead of the velocity doubles all-correct from 25% to 50%, in line with *Back to Basics*
+  (Li & He, 2025) for pixel-space transformers.
+* **Token models are the strongest transformers at equal steps.** The VQ decoder handles fine pixel detail, so the
+  transformer only picks 64 codes. MaskGIT (77%), MAR (70%) and VAR (65%) lead. VAR samples fastest: six parallel
+  steps, one per scale.
+* **Pixel-space flow transformers get layout right but blur shapes.** At 2,000 steps DiT, MMDiT and single-stream
   models produce blobby shapes; shape is the attribute they have learned least.
-* **ε-prediction fails at high noise.** `unet-eps` (the original DDPM / SD 1.x objective) denoises *better* than DiT
-  at low and medium noise, but its x₀ estimate degrades sharply near pure noise, where ε-prediction must divide by
-  √ᾱ ≈ 0. That is when the global layout is decided, and position accuracy drops to chance (11%). Lowering the
-  guidance scale makes it worse (0-3%), which rules out over-guidance. The default `unet` therefore uses
-  **v-prediction** (SD 2.x).
 
 > Caveats: train and sampling times are wall-clock on a CPU shared with other heavy jobs, so compare
-> them within the table only. Scores at n=128 carry about ±4% standard error, and none of these models
-> has converged. Rankings at real scale (billions of parameters, VAE latents, long training) differ:
+> them within the table only. Scores at n=128 carry about ±4% standard error, and most of these models
+> have not converged. Rankings at real scale (billions of parameters, VAE latents, long training) differ:
 > MMDiT and single-stream DiTs power most current production systems.
 
 
