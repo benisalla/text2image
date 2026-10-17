@@ -2,7 +2,12 @@
 
 Convolutional ResBlocks receive the timestep (+ pooled text, as in SDXL) and
 spatial transformer blocks cross-attend to the text sequence at the lower
-resolutions. Trained with epsilon-prediction, sampled with DDIM.
+resolutions. Sampled with DDIM.
+
+``prediction="eps"`` is the original DDPM / SD 1.x objective. ``prediction="v"``
+(Salimans & Ho 2022, used by SD 2.x) regresses ``v = sqrt(a) * eps - sqrt(1 - a) * x0``,
+which stays well-conditioned at high noise where eps-prediction must divide by
+sqrt(a) ~ 0 to recover the image: that is where the global layout is decided.
 """
 
 from __future__ import annotations
@@ -52,7 +57,7 @@ class Level(nn.Module):
 
 
 class UNetDDPM(T2IModel):
-    family = "diffusion (DDPM, epsilon)"
+    family = "diffusion (DDPM)"
     paper = "DDPM (Ho et al. 2020) + Latent Diffusion / Stable Diffusion U-Net (Rombach et al. 2022)"
 
     def __init__(
@@ -68,8 +73,11 @@ class UNetDDPM(T2IModel):
         text_dim: int = 128,
         text_depth: int = 2,
         timesteps: int = 1000,
+        prediction: str = "v",
     ):
         super().__init__(vocab_size, text_len, text_dim, text_depth)
+        assert prediction in ("eps", "v")
+        self.prediction = prediction
         self.image_size = image_size
         self.schedule = DDPMSchedule(timesteps)
         emb = ch * 4
@@ -111,12 +119,29 @@ class UNetDDPM(T2IModel):
                 h = up(F.interpolate(h, scale_factor=2, mode="nearest"))
         return self.conv_out(F.silu(self.norm_out(h)))
 
+    def _coeffs(self, t):
+        a = self.schedule.alphas_cumprod[t].view(-1, 1, 1, 1)
+        return a.sqrt(), (1 - a).sqrt()
+
+    def eps(self, x_t, t, text):
+        """Noise prediction, whatever the network's parameterisation."""
+        out = self(x_t, t, text)
+        if self.prediction == "eps":
+            return out
+        sa, s1a = self._coeffs(t)
+        return s1a * x_t + sa * out
+
     def loss(self, images, tokens):
         text = self.encode_text(self.drop_prompts(tokens))
         noise = torch.randn_like(images)
         t = self.schedule.sample_t(images.shape[0], images.device)
         x_t = self.schedule.q_sample(images, t, noise)
-        return F.mse_loss(self(x_t, t, text), noise)
+        if self.prediction == "eps":
+            target = noise
+        else:
+            sa, s1a = self._coeffs(t)
+            target = sa * noise - s1a * images
+        return F.mse_loss(self(x_t, t, text), target)
 
     @torch.no_grad()
     def generate(self, tokens, cfg_scale=3.0, steps=50, generator=None):
@@ -125,6 +150,6 @@ class UNetDDPM(T2IModel):
         noise = torch.randn(b, 3, self.image_size, self.image_size, generator=generator, device=tokens.device)
 
         def eps_fn(x, t):
-            return self.guide(self(torch.cat([x, x]), torch.cat([t, t]), (seq, pooled)), cfg_scale)
+            return self.guide(self.eps(torch.cat([x, x]), torch.cat([t, t]), (seq, pooled)), cfg_scale)
 
         return self.schedule.ddim_sample(eps_fn, noise, steps).clamp(-1, 1)

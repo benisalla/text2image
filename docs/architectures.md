@@ -41,7 +41,7 @@ Trends that most current systems share:
 
 | key | file | what it is | key ideas you can see in the code |
 |---|---|---|---|
-| `unet` | `models/unet.py` | **U-Net + DDPM**: the Stable Diffusion 1.x / 2.x / SDXL lineage | conv ResBlocks with time embedding, spatial transformers that cross-attend to text, epsilon prediction, cosine schedule, DDIM sampling |
+| `unet` | `models/unet.py` | **U-Net + DDPM**: the Stable Diffusion 1.x / 2.x / SDXL lineage | conv ResBlocks with time embedding, spatial transformers that cross-attend to text, v-prediction (SD 2.x) or epsilon (`unet-eps`, SD 1.x), cosine schedule, DDIM sampling |
 | `dit` | `models/dit.py` | **DiT with cross-attention** (PixArt-alpha) | patch tokens, adaLN-Zero modulation from timestep + pooled text, cross-attention to the text sequence, QK-norm |
 | `jit` | `models/dit.py` | **JiT**: same backbone, but predicts the clean image | `prediction="x"` turns the network output into a velocity: `v = (x_t - x̂) / t` |
 | `mmdit` | `models/mmdit.py` | **MMDiT** (SD3, FLUX.1 double-stream blocks) | separate weights per modality, *joint* attention over `[text; image]`, the last block's text stream is "pre-only" |

@@ -6,14 +6,17 @@ import torch
 from tinyprism.registry import MODELS, TOKENIZERS, build_model, build_tokenizer
 from tinyprism.text.tokenizer import WordTokenizer
 
+TINY_UNET = dict(ch=16, mults=(1, 2), attn_levels=(1,), num_res=1, heads=2, text_dim=32, text_depth=1)
 TINY = {
-    "unet": dict(ch=16, mults=(1, 2), attn_levels=(1,), num_res=1, heads=2, text_dim=32, text_depth=1),
+    "unet": TINY_UNET,
+    "unet-eps": dict(TINY_UNET, prediction="eps"),
     "mar": dict(dim=32, depth=1, heads=2, head_width=32, head_depth=1, text_dim=32, text_depth=1),
 }
 TINY_DEFAULT = dict(dim=32, depth=1, heads=2, text_dim=32, text_depth=1)
 TINY_VQ = dict(ch=16, z_dim=8, codebook_size=16)
 FAST_SAMPLING = {
     "unet": dict(steps=3),
+    "unet-eps": dict(steps=3),
     "maskgit": dict(steps=3),
     "mar": dict(num_iter=3, head_steps=2),
     "dit": dict(steps=2),

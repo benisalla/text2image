@@ -1,6 +1,6 @@
 # tiny-prism
 
-**Nine modern text-to-image architectures, written from scratch, small enough to train and compare on a laptop CPU.**
+**Nine modern text-to-image architectures (plus an ε-prediction ablation), written from scratch, small enough to train and compare on a laptop CPU.**
 
 A prism turns one beam of light into a full spectrum. `tiny-prism` takes one prompt and
 sends it through the full spectrum of today's generative architectures, from the
@@ -10,7 +10,7 @@ training loop and automatic evaluation, so the *only* thing that differs is the 
 
 | family | models |
 |---|---|
-| **Diffusion / flow matching** | `unet` (SD 1.x DDPM U-Net) · `dit` (DiT / PixArt-α) · `jit` (JiT pixel x-prediction) · `mmdit` (SD3 / FLUX double-stream) · `single-stream` (FLUX single blocks / Z-Image S3-DiT) |
+| **Diffusion / flow matching** | `unet` (Stable Diffusion U-Net, v-prediction; `unet-eps` ablation) · `dit` (DiT / PixArt-α) · `jit` (JiT pixel x-prediction) · `mmdit` (SD3 / FLUX double-stream) · `single-stream` (FLUX single blocks / Z-Image S3-DiT) |
 | **Autoregressive / masked tokens** | `ar` (DALL-E / Parti / LlamaGen) · `maskgit` (MaskGIT / Muse) · `var` (VAR next-scale) · `mar` (MAR + flow head, NextStep-1 style) |
 
 See [docs/architectures.md](docs/architectures.md) for the survey of the field (2025-2026),
@@ -18,7 +18,51 @@ the reasoning behind this selection, and exactly where each idea lives in the co
 
 ## Results
 
-<!-- RESULTS -->
+Every model was trained for **2,000 steps at batch size 32 on a CPU** (no GPU), then asked to
+draw 128 random prompts. The oracle scores each generated image (see below):
+
+| model | family | params | color | shape | position | size | all 4 correct | train time (CPU) | sampling / image |
+|---|---|---|---|---|---|---|---|---|---|
+| `unet-eps` | diffusion (DDPM) | 1.17M | 62% | 38% | 11% | 60% | **3%** | 72 min | 2659 ms |
+| `dit` | flow matching | 0.95M | 100% | 32% | 100% | 90% | **25%** | 37 min | 113 ms |
+| `jit` | flow matching (x-prediction) | 0.95M | 100% | 50% | 100% | 100% | **50%** | 23 min | 111 ms |
+| `mmdit` | flow matching | 1.34M | 100% | 34% | 100% | 98% | **34%** | 37 min | 119 ms |
+| `single-stream` | flow matching | 0.68M | 100% | 30% | 100% | 88% | **23%** | 20 min | 121 ms |
+| `ar` | autoregressive (discrete, next-token) | 0.54M | 83% | 47% | 80% | 86% | **30%** | 14 min | 101 ms |
+| `maskgit` | masked generative (discrete) | 0.69M | 91% | 84% | 100% | 100% | **77%** | 15 min | 40 ms |
+| `var` | autoregressive (discrete, next-scale) | 0.69M | 92% | 72% | 97% | 97% | **65%** | 23 min | 15 ms |
+| `mar` | masked autoregressive (continuous, diffusion/flow head) | 0.87M | 100% | 74% | 100% | 96% | **70%** | 34 min | 66 ms |
+| *real images (oracle ceiling)* | - | - | 100% | 100% | 100% | 100% | **100%** | - | - |
+
+<p align="center"><img src="results/comparison.png" width="760" alt="Each model's sample for 8 prompts"></p>
+
+*Columns of the grid, left to right:* “a large red circle at the center” · “a small blue square at the top left” · “a large yellow triangle at the bottom” · “a small green cross at the right” · “a large purple square at the bottom right” · “a small cyan circle at the top” · “a large green triangle at the left” · “a small red cross at the bottom left”.
+Per-model 4-sample grids are in [`results/`](results/); tokenizer reconstructions in
+[`results/reconstructions_vq.png`](results/reconstructions_vq.png) and [`results/reconstructions_msvq.png`](results/reconstructions_msvq.png).
+
+**What the numbers say** (at this tiny scale and budget):
+
+* **Every architecture learns text conditioning.** All transformer models get colour and position near 100%;
+  random guessing would give 17% and 11%.
+* **Token models win on shape at equal steps.** The VQ decoder handles the fine pixel detail, so the transformer
+  only has to pick 64 codes. MaskGIT (77%), MAR (70%) and VAR (65%) lead. VAR also samples fastest:
+  six parallel steps, one per scale.
+* **x-prediction doubles DiT's score.** JiT and DiT use the same network and differ only in what it predicts.
+  Predicting the clean image instead of the velocity takes all-correct from 25% to 50%,
+  which agrees with the claim of *Back to Basics* (Li & He, 2025) for pixel-space transformers.
+* **Flow transformers get layout right but blur shapes.** At 2,000 steps the pixel-space DiT, MMDiT and single-stream
+  models produce blobby shapes; shape is the attribute they have learned least.
+* **ε-prediction fails at high noise.** `unet-eps` (the original DDPM / SD 1.x objective) denoises *better* than DiT
+  at low and medium noise, but its x₀ estimate degrades sharply near pure noise, where ε-prediction must divide by
+  √ᾱ ≈ 0. That is when the global layout is decided, and position accuracy drops to chance (11%). Lowering the
+  guidance scale makes it worse (0-3%), which rules out over-guidance. The default `unet` therefore uses
+  **v-prediction** (SD 2.x).
+
+> Caveats: train and sampling times are wall-clock on a CPU shared with other heavy jobs, so compare
+> them within the table only. Scores at n=128 carry about ±4% standard error, and none of these models
+> has converged. Rankings at real scale (billions of parameters, VAE latents, long training) differ:
+> MMDiT and single-stream DiTs power most current production systems.
+
 
 ## The toy task: captioned shapes
 
@@ -43,7 +87,7 @@ fraction of images with **all four attributes correct**: a toy analogue of GenEv
 ```bash
 uv venv && uv pip install torch --index-url https://download.pytorch.org/whl/cpu
 uv pip install -e ".[dev]"
-pytest -q                      # 28 tests: shapes, gradients, sampling, tokenizers, overfitting
+pytest -q                      # 30 tests: shapes, gradients, sampling, tokenizers, overfitting
 
 # full pipeline: oracle -> tokenizers -> 9 models -> evaluation -> results/
 bash scripts/run_all.sh

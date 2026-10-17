@@ -42,6 +42,7 @@ class Spec:
 # the models are ~1M parameters so they train in minutes without a GPU. Scale up
 # with e.g. ``tinyprism-train dit --set dim=384 depth=12 heads=6``.
 TRANSFORMER = dict(dim=96, depth=4, heads=4, text_dim=64, text_depth=1)
+UNET = dict(ch=32, num_res=1, attn_levels=(2,), heads=4, text_dim=64, text_depth=1)
 VQ = dict(ch=32, z_dim=16, codebook_size=128)
 
 TOKENIZERS: dict[str, Spec] = {
@@ -50,11 +51,8 @@ TOKENIZERS: dict[str, Spec] = {
 }
 
 MODELS: dict[str, Spec] = {
-    "unet": Spec(
-        UNetDDPM,
-        dict(ch=32, num_res=1, attn_levels=(2,), heads=4, text_dim=64, text_depth=1),
-        Recipe(sample_kwargs=dict(steps=50)),
-    ),
+    "unet": Spec(UNetDDPM, UNET, Recipe(sample_kwargs=dict(steps=50))),
+    "unet-eps": Spec(UNetDDPM, dict(UNET, prediction="eps"), Recipe(sample_kwargs=dict(steps=50))),
     "dit": Spec(DiT, TRANSFORMER, Recipe(sample_kwargs=dict(steps=30))),
     "jit": Spec(JiT, TRANSFORMER, Recipe(sample_kwargs=dict(steps=30))),
     "mmdit": Spec(MMDiT, TRANSFORMER, Recipe(sample_kwargs=dict(steps=30))),
