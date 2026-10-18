@@ -36,3 +36,4 @@ ignore = ["E741", "B905"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+filterwarnings = ["ignore:`torch.jit.script` is deprecated:FutureWarning"]

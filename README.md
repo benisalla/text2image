@@ -4,7 +4,7 @@
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.x-ee4c2c)
-![Tests](https://img.shields.io/badge/tests-44%20passing-brightgreen)
+[![tests](https://github.com/benisalla/text2image/actions/workflows/tests.yml/badge.svg)](https://github.com/benisalla/text2image/actions/workflows/tests.yml)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 `text2image` covers the main ways images are generated from text today: from the Stable Diffusion
