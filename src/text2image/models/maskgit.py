@@ -14,8 +14,8 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from tinyprism.models.base import VQModel
-from tinyprism.nn.layers import TransformerBlock
+from text2image.models.base import VQModel
+from text2image.nn.layers import TransformerBlock
 
 
 class MaskGIT(VQModel):

@@ -2,7 +2,7 @@
 
 Example::
 
-    tinyprism-sample --ckpt runs/mmdit/model.pt --prompt "a large red circle at the top left" -n 8 --out red.png
+    text2image-sample --ckpt runs/mmdit/model.pt --prompt "a large red circle at the top left" -n 8 --out red.png
 """
 
 from __future__ import annotations
@@ -11,9 +11,9 @@ import argparse
 
 import torch
 
-from tinyprism.registry import MODELS, load_checkpoint
-from tinyprism.text.tokenizer import WordTokenizer
-from tinyprism.utils import save_grid
+from text2image.registry import MODELS, load_checkpoint
+from text2image.text.tokenizer import WordTokenizer
+from text2image.utils import save_grid
 
 
 def main(argv=None):

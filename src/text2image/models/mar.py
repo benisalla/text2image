@@ -19,9 +19,9 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from tinyprism.generation import flow
-from tinyprism.models.base import T2IModel
-from tinyprism.nn.layers import TimestepEmbedder, TransformerBlock, modulate, patchify, sincos_2d, unpatchify
+from text2image.generation import flow
+from text2image.models.base import T2IModel
+from text2image.nn.layers import TimestepEmbedder, TransformerBlock, modulate, patchify, sincos_2d, unpatchify
 
 
 class FlowHeadBlock(nn.Module):

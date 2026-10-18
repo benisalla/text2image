@@ -8,7 +8,7 @@ images where all four attributes are right.
 
 Usage::
 
-    tinyprism-eval --ckpt runs/dit/model.pt --oracle runs/oracle/model.pt --n 256
+    text2image-eval --ckpt runs/dit/model.pt --oracle runs/oracle/model.pt --n 256
 """
 
 from __future__ import annotations
@@ -22,8 +22,8 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from tinyprism.data.shapes import ATTRIBUTES, NUM_CLASSES, ShapesDataset
-from tinyprism.text.tokenizer import WordTokenizer
+from text2image.data.shapes import ATTRIBUTES, NUM_CLASSES, ShapesDataset
+from text2image.text.tokenizer import WordTokenizer
 
 
 class Oracle(nn.Module):
@@ -82,7 +82,7 @@ def evaluate_real(oracle, n: int = 1024, seed: int = 1234) -> dict:
 
 
 def main(argv=None):
-    from tinyprism.registry import MODELS, load_checkpoint
+    from text2image.registry import MODELS, load_checkpoint
 
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--ckpt", required=True)

@@ -21,9 +21,9 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from tinyprism.models.base import FlowModel
-from tinyprism.models.dit import FinalLayer, PatchEmbed
-from tinyprism.nn.layers import ResBlock, TimestepEmbedder, TransformerBlock, sincos_2d, unpatchify
+from text2image.models.base import FlowModel
+from text2image.models.dit import FinalLayer, PatchEmbed
+from text2image.nn.layers import ResBlock, TimestepEmbedder, TransformerBlock, sincos_2d, unpatchify
 
 
 class UNetPatchifier(nn.Module):

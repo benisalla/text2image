@@ -13,7 +13,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from tinyprism.nn.layers import ResBlock
+from text2image.nn.layers import ResBlock
 
 
 class MultiScaleQuantizer(nn.Module):

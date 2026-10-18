@@ -2,10 +2,10 @@
 
 Examples::
 
-    tinyprism-train oracle --out runs/oracle
-    tinyprism-train vq     --out runs/vq
-    tinyprism-train dit    --out runs/dit
-    tinyprism-train maskgit --tokenizer runs/vq/model.pt --out runs/maskgit
+    text2image-train oracle --out runs/oracle
+    text2image-train vq     --out runs/vq
+    text2image-train dit    --out runs/dit
+    text2image-train maskgit --tokenizer runs/vq/model.pt --out runs/maskgit
 """
 
 from __future__ import annotations
@@ -18,11 +18,11 @@ from pathlib import Path
 
 import torch
 
-from tinyprism.data.shapes import ShapesDataset
-from tinyprism.evaluate import Oracle, evaluate_real
-from tinyprism.registry import MODELS, TOKENIZERS, Recipe, build_model, build_tokenizer, load_checkpoint, save_checkpoint
-from tinyprism.text.tokenizer import WordTokenizer
-from tinyprism.utils import DEMO_PROMPTS, EMA, lr_lambda, save_grid
+from text2image.data.shapes import ShapesDataset
+from text2image.evaluate import Oracle, evaluate_real
+from text2image.registry import MODELS, TOKENIZERS, Recipe, build_model, build_tokenizer, load_checkpoint, save_checkpoint
+from text2image.text.tokenizer import WordTokenizer
+from text2image.utils import DEMO_PROMPTS, EMA, lr_lambda, save_grid
 
 
 def parse_overrides(pairs: list[str]) -> dict:

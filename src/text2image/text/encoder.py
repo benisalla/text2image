@@ -5,7 +5,7 @@ from __future__ import annotations
 import torch
 from torch import nn
 
-from tinyprism.nn.layers import TransformerBlock
+from text2image.nn.layers import TransformerBlock
 
 
 class TextEncoder(nn.Module):

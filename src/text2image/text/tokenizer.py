@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import torch
 
-from tinyprism.data.shapes import VOCAB_WORDS
+from text2image.data.shapes import VOCAB_WORDS
 
 PAD, UNK = "<pad>", "<unk>"
 

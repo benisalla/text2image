@@ -22,8 +22,8 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from tinyprism.models.base import FlowModel
-from tinyprism.nn.layers import Attention, TimestepEmbedder, merge_heads, modulate, split_heads, unpatchify
+from text2image.models.base import FlowModel
+from text2image.nn.layers import Attention, TimestepEmbedder, merge_heads, modulate, split_heads, unpatchify
 
 
 class LinearAttention(nn.Module):

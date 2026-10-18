@@ -7,7 +7,7 @@ is small enough to learn on a CPU in minutes but still forces a model to bind
 several words to the right visual properties.
 
 Because the ground truth is known exactly, generated images can be scored
-automatically by an "oracle" classifier (see ``tinyprism.evaluate``).
+automatically by an "oracle" classifier (see ``text2image.evaluate``).
 """
 
 from __future__ import annotations

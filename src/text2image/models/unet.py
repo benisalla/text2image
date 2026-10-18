@@ -16,9 +16,9 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from tinyprism.generation.ddpm import DDPMSchedule
-from tinyprism.models.base import T2IModel
-from tinyprism.nn.layers import ResBlock, TimestepEmbedder, TransformerBlock
+from text2image.generation.ddpm import DDPMSchedule
+from text2image.models.base import T2IModel
+from text2image.nn.layers import ResBlock, TimestepEmbedder, TransformerBlock
 
 
 class SpatialTransformer(nn.Module):

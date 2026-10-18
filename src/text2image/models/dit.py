@@ -13,8 +13,8 @@ from __future__ import annotations
 import torch
 from torch import nn
 
-from tinyprism.models.base import FlowModel
-from tinyprism.nn.layers import MLP, Attention, TimestepEmbedder, modulate, sincos_2d, unpatchify
+from text2image.models.base import FlowModel
+from text2image.nn.layers import MLP, Attention, TimestepEmbedder, modulate, sincos_2d, unpatchify
 
 
 class PatchEmbed(nn.Module):

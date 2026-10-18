@@ -15,8 +15,8 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from tinyprism.generation import flow
-from tinyprism.text.encoder import TextEncoder
+from text2image.generation import flow
+from text2image.text.encoder import TextEncoder
 
 
 class T2IModel(nn.Module):
@@ -68,7 +68,7 @@ class VQModel(T2IModel):
 
     def __init__(self, vocab_size: int, text_len: int, vq_config: dict, text_dim: int = 128, text_depth: int = 2):
         super().__init__(vocab_size, text_len, text_dim, text_depth)
-        from tinyprism.tokenizers.vq import VQVAE
+        from text2image.tokenizers.vq import VQVAE
 
         self.vq_config = dict(vq_config)
         self.vq = VQVAE(**self.vq_config).requires_grad_(False).eval()

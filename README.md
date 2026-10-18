@@ -1,13 +1,11 @@
-# tiny-prism
+# tiny-text2image
 
 **Twelve modern text-to-image architectures (plus an ε-prediction ablation), written from scratch, small enough to train and compare on a laptop CPU.**
 
-A prism turns one beam of light into a full spectrum. `tiny-prism` takes one prompt and
-sends it through the full spectrum of today's generative architectures, from the
+`tiny-text2image` implements today's main text-to-image architectures side by side, from the
 Stable Diffusion U-Net to FLUX-style MMDiT, one-step MeanFlow, Transfusion-style unified
 models, VAR's next-scale prediction and MAR's continuous-token autoregression. All of them
-share the same data,
-text tokenizer, training loop and automatic evaluation, so the *only* thing that differs is the architecture.
+share the same data, text tokenizer, training loop and automatic evaluation, so the *only* thing that differs is the architecture.
 
 | family | models |
 |---|---|
@@ -98,7 +96,7 @@ It is simple enough to learn on a CPU in minutes, yet a model only scores well i
 **every** word to the right visual property.
 
 **Evaluation without humans.** Because the ground truth is known, a small CNN "oracle"
-(`tinyprism/evaluate.py`) is trained to read colour, shape, position and size from real images
+(`text2image/evaluate.py`) is trained to read colour, shape, position and size from real images
 (≈100% accurate). We run it on generated images and report per-attribute accuracy and the
 fraction of images with **all four attributes correct**: a toy analogue of GenEval.
 
@@ -116,23 +114,23 @@ bash scripts/run_all.sh
 Or one model at a time:
 
 ```bash
-tinyprism-train oracle --out runs/oracle
-tinyprism-train mmdit  --out runs/mmdit
-tinyprism-train vq     --out runs/vq
-tinyprism-train maskgit --tokenizer runs/vq/model.pt --out runs/maskgit
+text2image-train oracle --out runs/oracle
+text2image-train mmdit  --out runs/mmdit
+text2image-train vq     --out runs/vq
+text2image-train maskgit --tokenizer runs/vq/model.pt --out runs/maskgit
 
-tinyprism-sample --ckpt runs/mmdit/model.pt -n 8 --out red.png \
+text2image-sample --ckpt runs/mmdit/model.pt -n 8 --out red.png \
     --prompt "a large red circle at the top left"
-tinyprism-eval --ckpt runs/mmdit/model.pt --oracle runs/oracle/model.pt --n 256
+text2image-eval --ckpt runs/mmdit/model.pt --oracle runs/oracle/model.pt --n 256
 ```
 
 Model sizes are a CPU preset (~1M parameters). On a GPU, scale up any model with
-`--set`, e.g. `tinyprism-train dit --set dim=384 depth=12 heads=6 --steps 50000 --batch-size 256`.
+`--set`, e.g. `text2image-train dit --set dim=384 depth=12 heads=6 --steps 50000 --batch-size 256`.
 
 ## Repository layout
 
 ```
-src/tinyprism/
+src/text2image/
 ├── data/shapes.py          synthetic captioned-shapes dataset (pre-rendered jitter bank)
 ├── text/                   word tokenizer + small transformer text encoder (CLIP/T5 stand-in)
 ├── nn/layers.py            attention, adaLN modulation, timestep embedding, patchify, ResBlock

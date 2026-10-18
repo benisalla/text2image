@@ -8,9 +8,9 @@ from pathlib import Path
 
 import torch
 
-from tinyprism.registry import MODELS, load_checkpoint
-from tinyprism.text.tokenizer import WordTokenizer
-from tinyprism.utils import DEMO_PROMPTS, save_grid
+from text2image.registry import MODELS, load_checkpoint
+from text2image.text.tokenizer import WordTokenizer
+from text2image.utils import DEMO_PROMPTS, save_grid
 
 
 def main():

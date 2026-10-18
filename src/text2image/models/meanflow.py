@@ -25,9 +25,9 @@ import torch
 from torch.func import jvp
 from torch.nn.attention import SDPBackend, sdpa_kernel
 
-from tinyprism.generation import flow
-from tinyprism.models.dit import DiT
-from tinyprism.nn.layers import TimestepEmbedder
+from text2image.generation import flow
+from text2image.models.dit import DiT
+from text2image.nn.layers import TimestepEmbedder
 
 
 class MeanFlow(DiT):

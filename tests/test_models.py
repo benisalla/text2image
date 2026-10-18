@@ -3,8 +3,8 @@
 import pytest
 import torch
 
-from tinyprism.registry import MODELS, TOKENIZERS, build_model, build_tokenizer
-from tinyprism.text.tokenizer import WordTokenizer
+from text2image.registry import MODELS, TOKENIZERS, build_model, build_tokenizer
+from text2image.text.tokenizer import WordTokenizer
 
 TINY_UNET = dict(ch=16, mults=(1, 2), attn_levels=(1,), num_res=1, heads=2, text_dim=32, text_depth=1)
 TINY = {
@@ -40,7 +40,7 @@ def tiny_model(name):
 
 @pytest.fixture(scope="module")
 def batch():
-    from tinyprism.data.shapes import ShapesDataset
+    from text2image.data.shapes import ShapesDataset
 
     b = ShapesDataset(seed=0).sample(4)
     return b.images, WordTokenizer().encode(b.captions)
@@ -96,7 +96,7 @@ def test_var_mask_is_block_causal():
 def test_dit_overfits_single_prompt():
     """Sanity check that the training loop actually learns: loss drops on a fixed batch."""
     torch.manual_seed(0)
-    from tinyprism.data.shapes import ShapesDataset
+    from text2image.data.shapes import ShapesDataset
 
     b = ShapesDataset(seed=0, jitter=False).sample(8)
     tokens = WordTokenizer().encode(b.captions)
@@ -148,7 +148,7 @@ def test_transfusion_text_is_causal_and_blind_to_image():
 
 
 def test_sana_linear_attention_matches_explicit_formula():
-    from tinyprism.models.sana import LinearAttention
+    from text2image.models.sana import LinearAttention
 
     torch.manual_seed(0)
     attn = LinearAttention(8, heads=1)
@@ -161,7 +161,7 @@ def test_sana_linear_attention_matches_explicit_formula():
 
 
 def test_mar_mask_ratio_is_truncated_not_clamped():
-    from tinyprism.models.mar import MAR
+    from text2image.models.mar import MAR
 
     torch.manual_seed(0)
     r = MAR.sample_mask_ratio(20000, "cpu")
@@ -170,8 +170,8 @@ def test_mar_mask_ratio_is_truncated_not_clamped():
 
 
 def test_train_rejects_wrong_tokenizer(tmp_path):
-    from tinyprism.registry import save_checkpoint
-    from tinyprism.train import main
+    from text2image.registry import save_checkpoint
+    from text2image.train import main
 
     vq = build_tokenizer("vq", **TINY_VQ)
     save_checkpoint(tmp_path / "vq.pt", "tokenizer", "vq", TINY_VQ, vq)
@@ -180,7 +180,7 @@ def test_train_rejects_wrong_tokenizer(tmp_path):
 
 
 def test_transfusion_lm_targets_end_with_one_eos():
-    from tinyprism.models.transfusion import Transfusion
+    from text2image.models.transfusion import Transfusion
 
     tokens = torch.tensor([[2, 5, 6, 0, 0], [0, 0, 0, 0, 0]])
     assert Transfusion.lm_targets(tokens).tolist() == [[5, 6, 0, -100], [-100, -100, -100, -100]]

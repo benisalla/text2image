@@ -1,8 +1,8 @@
 import torch
 
-from tinyprism.data.shapes import NUM_CLASSES, ShapesDataset, caption, render
-from tinyprism.text.encoder import TextEncoder
-from tinyprism.text.tokenizer import WordTokenizer
+from text2image.data.shapes import NUM_CLASSES, ShapesDataset, caption, render
+from text2image.text.encoder import TextEncoder
+from text2image.text.tokenizer import WordTokenizer
 
 
 def test_render_shapes_and_range():

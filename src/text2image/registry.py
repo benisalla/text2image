@@ -7,20 +7,20 @@ from pathlib import Path
 
 import torch
 
-from tinyprism.models.autoregressive import AutoregressiveTransformer
-from tinyprism.models.base import T2IModel, VQModel
-from tinyprism.models.dit import DiT, JiT
-from tinyprism.models.mar import MAR
-from tinyprism.models.maskgit import MaskGIT
-from tinyprism.models.meanflow import MeanFlow
-from tinyprism.models.mmdit import MMDiT
-from tinyprism.models.sana import Sana
-from tinyprism.models.single_stream import SingleStreamDiT
-from tinyprism.models.transfusion import Transfusion
-from tinyprism.models.unet import UNetDDPM
-from tinyprism.models.var import VAR
-from tinyprism.text.tokenizer import WordTokenizer
-from tinyprism.tokenizers.vq import VQVAE
+from text2image.models.autoregressive import AutoregressiveTransformer
+from text2image.models.base import T2IModel, VQModel
+from text2image.models.dit import DiT, JiT
+from text2image.models.mar import MAR
+from text2image.models.maskgit import MaskGIT
+from text2image.models.meanflow import MeanFlow
+from text2image.models.mmdit import MMDiT
+from text2image.models.sana import Sana
+from text2image.models.single_stream import SingleStreamDiT
+from text2image.models.transfusion import Transfusion
+from text2image.models.unet import UNetDDPM
+from text2image.models.var import VAR
+from text2image.text.tokenizer import WordTokenizer
+from text2image.tokenizers.vq import VQVAE
 
 
 @dataclass
@@ -43,7 +43,7 @@ class Spec:
 
 # Default sizes are a "CPU preset": every architectural ingredient is present but
 # the models are ~1M parameters so they train in minutes without a GPU. Scale up
-# with e.g. ``tinyprism-train dit --set dim=384 depth=12 heads=6``.
+# with e.g. ``text2image-train dit --set dim=384 depth=12 heads=6``.
 TRANSFORMER = dict(dim=96, depth=4, heads=4, text_dim=64, text_depth=1)
 UNET = dict(ch=32, num_res=1, attn_levels=(2,), heads=4, text_dim=64, text_depth=1)
 VQ = dict(ch=32, z_dim=16, codebook_size=128)
@@ -90,7 +90,7 @@ def save_checkpoint(path: str | Path, kind: str, name: str, config: dict, model:
 
 
 def load_checkpoint(path: str | Path, map_location="cpu"):
-    """Rebuild a model / tokenizer / oracle from a checkpoint written by ``tinyprism.train``."""
+    """Rebuild a model / tokenizer / oracle from a checkpoint written by ``text2image.train``."""
     ckpt = torch.load(path, map_location=map_location, weights_only=False)
     kind, name, cfg = ckpt["kind"], ckpt["name"], ckpt["config"]
     if kind == "model":
@@ -98,7 +98,7 @@ def load_checkpoint(path: str | Path, map_location="cpu"):
     elif kind == "tokenizer":
         model = build_tokenizer(name, **cfg)
     elif kind == "oracle":
-        from tinyprism.evaluate import Oracle
+        from text2image.evaluate import Oracle
 
         model = Oracle()
     else:
