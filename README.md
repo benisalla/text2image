@@ -1,8 +1,8 @@
-# tiny-text2image
+# text2image
 
-**Twelve modern text-to-image architectures (plus an ε-prediction ablation), written from scratch, small enough to train and compare on a laptop CPU.**
+**Twelve modern text-to-image architectures (plus an ε-prediction ablation), small enough to train and compare on a laptop CPU.**
 
-`tiny-text2image` implements today's main text-to-image architectures side by side, from the
+`text2image` implements today's main text-to-image architectures side by side, from the
 Stable Diffusion U-Net to FLUX-style MMDiT, one-step MeanFlow, Transfusion-style unified
 models, VAR's next-scale prediction and MAR's continuous-token autoregression. All of them
 share the same data, text tokenizer, training loop and automatic evaluation, so the *only* thing that differs is the architecture.

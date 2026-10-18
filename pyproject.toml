@@ -3,9 +3,9 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [project]
-name = "tiny-text2image"
+name = "text2image"
 version = "0.1.0"
-description = "tiny-text2image: twelve modern text-to-image architectures (U-Net DDPM, DiT, JiT, MMDiT, single-stream DiT, SANA, MeanFlow, Transfusion, autoregressive, MaskGIT, VAR, MAR) implemented from scratch, small enough to train and compare on a CPU."
+description = "text2image: twelve modern text-to-image architectures (U-Net DDPM, DiT, JiT, MMDiT, single-stream DiT, SANA, MeanFlow, Transfusion, autoregressive, MaskGIT, VAR, MAR), small enough to train and compare on a CPU."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"

@@ -1,7 +1,7 @@
 # Text-to-image architectures: a field guide (October 2026)
 
 This page surveys the architecture families behind today's text-to-image systems
-and maps each one to the file in `tiny-text2image` that implements it. The goal of the
+and maps each one to the file in `text2image` that implements it. The goal of the
 repo is **to make the differences tangible**: every family is implemented from
 scratch with the same text encoder, data and evaluation, so you can read, train
 and compare them side by side.
