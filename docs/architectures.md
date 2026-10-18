@@ -32,10 +32,11 @@ Trends that most current systems share:
   plain transformer on raw pixel patches works if the network predicts the *clean
   image* (x-prediction) rather than noise or velocity.
 * **Unified multimodal models** (HunyuanImage 3.0, Janus-Pro, BLIP3-o, Transfusion-style
-  MoE) put understanding and generation in one LLM. They are out of scope for a tiny
-  repo, but their image heads are exactly the families below.
+  MoE) put understanding and generation in one LLM; `transfusion` is a tiny version.
+* **One-step generation without distillation**: MeanFlow and its improved variants learn
+  the average velocity of the flow and generate in a single network evaluation.
 
-## 2. The nine architectures implemented here
+## 2. The twelve architectures implemented here
 
 ### Diffusion & flow family (continuous pixels)
 
@@ -46,9 +47,17 @@ Trends that most current systems share:
 | `jit` | `models/dit.py` | **JiT**: same backbone, but predicts the clean image | `prediction="x"` turns the network output into a velocity: `v = (x_t - x̂) / t` |
 | `mmdit` | `models/mmdit.py` | **MMDiT** (SD3, FLUX.1 double-stream blocks) | separate weights per modality, *joint* attention over `[text; image]`, the last block's text stream is "pre-only" |
 | `single-stream` | `models/single_stream.py` | **single-stream DiT** (FLUX single blocks, Z-Image S3-DiT) | one shared transformer over `[text; image]`, parallel attention + MLP from a fused projection |
+| `sana` | `models/sana.py` | **SANA**: efficiency-first DiT | ReLU **linear attention** (cost linear in tokens), **Mix-FFN** with a depthwise conv, **no positional embedding**, adaLN-single |
 
 All flow models share `FlowModel` in `models/base.py`: `x_t = (1-t)·x0 + t·ε`,
 target `v = ε - x0`, logit-normal t, Euler sampling with optional timestep shift.
+
+### One-step and unified models
+
+| key | file | what it is | key ideas you can see in the code |
+|---|---|---|---|
+| `meanflow` | `models/meanflow.py` | **MeanFlow** (NeurIPS 2025; improved MeanFlow, CVPR 2026): state of the art in one-step generation | learns the *average* velocity u(z, r, t); target from the MeanFlow identity `u = v - (t-r)·du/dt` with du/dt as a forward-mode **JVP**; classifier-free guidance folded into training; **1 network evaluation** at sampling |
+| `transfusion` | `models/transfusion.py` | **Transfusion** (ICLR 2025), the recipe behind unified models like HunyuanImage 3.0 | no text encoder: one transformer reads `[caption; noisy patches]` with a causal mask on text and bidirectional attention on the image; loss = next-token LM on captions + 5 × flow matching; `complete_caption()` shows it really is a language model |
 
 ### Token family (autoregressive / masked)
 
@@ -102,6 +111,10 @@ Implemented here:
 * Han et al., *Infinity: Scaling Bitwise AutoRegressive Modeling for High-Resolution Image Synthesis*, CVPR 2025. https://arxiv.org/abs/2412.04431
 * Li et al., *Autoregressive Image Generation without Vector Quantization* (MAR), NeurIPS 2024. https://arxiv.org/abs/2406.11838
 * NextStep-1 (AR model with a flow-matching head), ICLR 2026.
+
+* Geng et al., *Mean Flows for One-step Generative Modeling*, NeurIPS 2025. https://arxiv.org/abs/2505.13447 ; *Improved Mean Flows*, CVPR 2026. https://arxiv.org/abs/2512.02012
+* Zhou et al., *Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model*, ICLR 2025.
+* Xie et al., *SANA: Efficient High-Resolution Image Synthesis with Linear Diffusion Transformers*, ICLR 2025.
 
 Context:
 * Apple, *DiT-Air: Revisiting the Efficiency of Diffusion Model Architecture Design in Text to Image Generation*, 2025. https://arxiv.org/abs/2503.10618

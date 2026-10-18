@@ -12,8 +12,11 @@ from tinyprism.models.base import T2IModel, VQModel
 from tinyprism.models.dit import DiT, JiT
 from tinyprism.models.mar import MAR
 from tinyprism.models.maskgit import MaskGIT
+from tinyprism.models.meanflow import MeanFlow
 from tinyprism.models.mmdit import MMDiT
+from tinyprism.models.sana import Sana
 from tinyprism.models.single_stream import SingleStreamDiT
+from tinyprism.models.transfusion import Transfusion
 from tinyprism.models.unet import UNetDDPM
 from tinyprism.models.var import VAR
 from tinyprism.text.tokenizer import WordTokenizer
@@ -57,6 +60,9 @@ MODELS: dict[str, Spec] = {
     "jit": Spec(JiT, TRANSFORMER, Recipe(sample_kwargs=dict(steps=30))),
     "mmdit": Spec(MMDiT, TRANSFORMER, Recipe(sample_kwargs=dict(steps=30))),
     "single-stream": Spec(SingleStreamDiT, TRANSFORMER, Recipe(sample_kwargs=dict(steps=30))),
+    "sana": Spec(Sana, TRANSFORMER, Recipe(sample_kwargs=dict(steps=30))),
+    "meanflow": Spec(MeanFlow, TRANSFORMER, Recipe(sample_kwargs=dict(steps=1, cfg_scale=1.0))),
+    "transfusion": Spec(Transfusion, dict(dim=96, depth=4, heads=4), Recipe(sample_kwargs=dict(steps=30))),
     "ar": Spec(AutoregressiveTransformer, TRANSFORMER, Recipe(tokenizer="vq")),
     "maskgit": Spec(MaskGIT, TRANSFORMER, Recipe(tokenizer="vq", sample_kwargs=dict(steps=12))),
     "var": Spec(VAR, TRANSFORMER, Recipe(tokenizer="msvq")),

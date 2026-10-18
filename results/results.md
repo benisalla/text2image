@@ -1,4 +1,4 @@
-| model | family | params | color | shape | position | size | all 4 correct | train time (CPU) | sampling / image |
+| model | family | trainable params | color | shape | position | size | all 4 correct | train time (CPU) | sampling / image |
 |---|---|---|---|---|---|---|---|---|---|
 | `unet` | diffusion (DDPM) | 1.17M | 100% | 100% | 100% | 100% | **100%** | 77 min | 781 ms |
 | `unet-eps` | diffusion (DDPM) | 1.17M | 62% | 38% | 11% | 60% | **3%** | 72 min | 2659 ms |
@@ -6,8 +6,11 @@
 | `jit` | flow matching (x-prediction) | 0.95M | 100% | 50% | 100% | 100% | **50%** | 23 min | 111 ms |
 | `mmdit` | flow matching | 1.34M | 100% | 34% | 100% | 98% | **34%** | 37 min | 119 ms |
 | `single-stream` | flow matching | 0.68M | 100% | 30% | 100% | 88% | **23%** | 20 min | 121 ms |
+| `sana` | flow matching (linear-attention DiT) | 0.76M | 87% | 39% | 11% | 89% | **4%** | 27 min | 435 ms |
+| `meanflow` | flow matching, one-step (average velocity) | 0.98M | 100% | 31% | 100% | 89% | **25%** | 64 min | 9 ms |
+| `transfusion` | unified LM + flow matching (one transformer) | 0.64M | 100% | 41% | 100% | 100% | **41%** | 40 min | 153 ms |
 | `ar` | autoregressive (discrete, next-token) | 0.54M | 83% | 47% | 80% | 86% | **30%** | 14 min | 101 ms |
 | `maskgit` | masked generative (discrete) | 0.69M | 91% | 84% | 100% | 100% | **77%** | 15 min | 40 ms |
 | `var` | autoregressive (discrete, next-scale) | 0.69M | 92% | 72% | 97% | 97% | **65%** | 23 min | 15 ms |
-| `mar` | masked autoregressive (continuous, diffusion/flow head) | 0.87M | 100% | 74% | 100% | 96% | **70%** | 34 min | 66 ms |
+| `mar` | masked autoregressive (continuous, diffusion/flow head) | 0.87M | 100% | 73% | 100% | 98% | **72%** | 46 min | 241 ms |
 | *real images (oracle ceiling)* | - | - | 100% | 100% | 100% | 100% | **100%** | - | - |

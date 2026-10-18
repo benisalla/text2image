@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "tiny-prism"
 version = "0.1.0"
-description = "tiny-prism: nine modern text-to-image architectures (U-Net DDPM, DiT, JiT, MMDiT, single-stream DiT, autoregressive, MaskGIT, VAR, MAR) implemented from scratch, small enough to train and compare on a CPU."
+description = "tiny-prism: twelve modern text-to-image architectures (U-Net DDPM, DiT, JiT, MMDiT, single-stream DiT, SANA, MeanFlow, Transfusion, autoregressive, MaskGIT, VAR, MAR) implemented from scratch, small enough to train and compare on a CPU."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"

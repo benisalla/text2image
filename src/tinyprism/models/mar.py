@@ -104,12 +104,24 @@ class MAR(T2IModel):
             h = blk(h, ctx)
         return self.norm(h)
 
+    @staticmethod
+    def sample_mask_ratio(n: int, device, std: float = 0.25, low: float = 0.7) -> torch.Tensor:
+        """Truncated normal on [low, 1] centred at 1.0 (rejection sampling, not clamping)."""
+        out = torch.empty(n, 1, device=device)
+        todo = torch.ones(n, dtype=torch.bool, device=device)
+        while todo.any():
+            draw = 1 - torch.randn(int(todo.sum()), device=device).abs() * std
+            ok = draw >= low
+            idx = todo.nonzero().flatten()[ok]
+            out[idx, 0] = draw[ok]
+            todo[idx] = False
+        return out
+
     def loss(self, images, tokens):
         x = patchify(images, self.patch)
         b, n, _ = x.shape
         seq, _ = self.encode_text(self.drop_prompts(tokens))
-        # Mask ratio from a truncated normal centred at 1.0 (min 0.7), as in MAR.
-        ratio = (1 - torch.randn(b, 1, device=x.device).abs() * 0.25).clamp(0.7, 1.0)
+        ratio = self.sample_mask_ratio(b, x.device)
         rank = torch.rand(b, n, device=x.device).argsort(dim=1).argsort(dim=1)
         masked = rank < (ratio * n).ceil()
         z = self(x, ~masked, seq)[masked]

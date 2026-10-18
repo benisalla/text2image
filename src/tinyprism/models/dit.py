@@ -89,9 +89,13 @@ class DiT(FlowModel):
         self.blocks = nn.ModuleList([DiTBlock(dim, heads) for _ in range(depth)])
         self.final = FinalLayer(dim, patch)
 
-    def forward(self, x, t, text):
+    def condition(self, t, pooled, **kwargs):
+        """Global conditioning vector for adaLN; subclasses add extra inputs (e.g. MeanFlow's r)."""
+        return self.t_embed(t) + self.pooled_proj(pooled)
+
+    def forward(self, x, t, text, **kwargs):
         seq, pooled = text
-        c = self.t_embed(t) + self.pooled_proj(pooled)
+        c = self.condition(t, pooled, **kwargs)
         ctx = self.ctx_proj(seq)
         h = self.embed(x)
         for blk in self.blocks:

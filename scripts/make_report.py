@@ -45,7 +45,8 @@ def main():
 
     oracle_metrics = torch.load(runs / "oracle" / "model.pt", weights_only=False)["metrics"]
     header = (
-        "| model | family | params | color | shape | position | size | all 4 correct | train time (CPU) | sampling / image |\n"
+        "| model | family | trainable params | color | shape | position | size | all 4 correct "
+        "| train time (CPU) | sampling / image |\n"
         "|---|---|---|---|---|---|---|---|---|---|\n"
     )
     real = (

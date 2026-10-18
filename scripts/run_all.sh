@@ -25,10 +25,10 @@ train() {  # name [--tokenizer path]
 }
 export -f train
 
-printf '%s\n' oracle vq msvq unet dit mmdit mar jit single-stream | xargs -P "$JOBS" -I{} bash -c 'train {}'
+printf '%s\n' oracle vq msvq unet unet-eps dit mmdit mar meanflow sana transfusion jit single-stream | xargs -P "$JOBS" -I{} bash -c 'train {}'
 printf '%s\n' "ar vq" "maskgit vq" "var msvq" | xargs -P "$JOBS" -I{} bash -c 'set -- {}; train $1 --tokenizer $RUNS/$2/model.pt'
 
-for m in unet unet-eps dit jit mmdit single-stream ar maskgit var mar; do
+for m in unet unet-eps dit jit mmdit single-stream sana meanflow transfusion ar maskgit var mar; do
   [[ -f "$RUNS/$m/model.pt" ]] || continue
   [[ -f "$RUNS/$m/metrics.json" ]] || $PY -u -m tinyprism.evaluate --ckpt "$RUNS/$m/model.pt" \
     --oracle "$RUNS/oracle/model.pt" --n 128 --threads 1 > "$RUNS/logs/eval-$m.log" 2>&1

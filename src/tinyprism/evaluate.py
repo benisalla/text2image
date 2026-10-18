@@ -88,7 +88,7 @@ def main(argv=None):
     p.add_argument("--ckpt", required=True)
     p.add_argument("--oracle", required=True)
     p.add_argument("--n", type=int, default=256)
-    p.add_argument("--cfg", type=float, default=3.0)
+    p.add_argument("--cfg", type=float, default=None, help="guidance scale (default: the model's own)")
     p.add_argument("--out", default=None, help="write metrics JSON here (default: next to the checkpoint)")
     p.add_argument("--threads", type=int, default=0)
     args = p.parse_args(argv)
@@ -97,7 +97,9 @@ def main(argv=None):
 
     model, ckpt = load_checkpoint(args.ckpt)
     oracle, _ = load_checkpoint(args.oracle)
-    kwargs = {**MODELS[ckpt["name"]].recipe.sample_kwargs, "cfg_scale": args.cfg}
+    kwargs = dict(MODELS[ckpt["name"]].recipe.sample_kwargs)
+    if args.cfg is not None:
+        kwargs["cfg_scale"] = args.cfg
     metrics = {"model": ckpt["name"], "params": model.num_params, **evaluate_model(model, oracle, args.n, **kwargs)}
     print(json.dumps(metrics, indent=2))
     out = Path(args.out) if args.out else Path(args.ckpt).with_name("metrics.json")

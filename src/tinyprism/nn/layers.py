@@ -98,8 +98,9 @@ class TimestepEmbedder(nn.Module):
 
     def forward(self, t: torch.Tensor) -> torch.Tensor:
         half = self.freq_dim // 2
-        freqs = torch.exp(-math.log(self.max_period) * torch.arange(half, device=t.device) / half)
-        args = (t.float() * 1000.0)[:, None] * freqs[None]
+        dtype = self.mlp[0].weight.dtype
+        freqs = torch.exp(-math.log(self.max_period) * torch.arange(half, device=t.device, dtype=dtype) / half)
+        args = (t.to(dtype) * 1000.0)[:, None] * freqs[None]
         return self.mlp(torch.cat([torch.cos(args), torch.sin(args)], dim=-1))
 
 

@@ -150,6 +150,9 @@ def main(argv=None):
             if not args.tokenizer:
                 p.error(f"{args.name} needs --tokenizer (a trained '{MODELS[args.name].recipe.tokenizer}' checkpoint)")
             vq, vq_ckpt = load_checkpoint(args.tokenizer)
+            wanted = MODELS[args.name].recipe.tokenizer
+            if vq_ckpt["kind"] != "tokenizer" or vq_ckpt["name"] != wanted:
+                p.error(f"{args.name} needs a '{wanted}' tokenizer, got a '{vq_ckpt['name']}' checkpoint")
             vq_config = {**TOKENIZERS[vq_ckpt["name"]].kwargs, **vq_ckpt["config"]}
         model = build_model(args.name, tok, vq_config=vq_config, **overrides)
         if vq_config is not None:
