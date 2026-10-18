@@ -5,13 +5,13 @@ build-backend = "hatchling.build"
 [project]
 name = "text2image"
 version = "0.1.0"
-description = "text2image: twelve modern text-to-image architectures (U-Net DDPM, DiT, JiT, MMDiT, single-stream DiT, SANA, MeanFlow, Transfusion, autoregressive, MaskGIT, VAR, MAR), small enough to train and compare on a CPU."
+description = "Twelve modern text-to-image architectures (U-Net DDPM, DiT, JiT, MMDiT, single-stream DiT, SANA, MeanFlow, Transfusion, autoregressive, MaskGIT, VAR, MAR) implemented side by side in PyTorch, small enough to train and compare on a CPU."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
 keywords = [
   "text-to-image", "diffusion", "flow-matching", "rectified-flow", "dit", "mmdit", "stable-diffusion",
-  "flux", "autoregressive", "maskgit", "var", "mar", "vq-vae", "pytorch", "from-scratch",
+  "flux", "autoregressive", "maskgit", "var", "mar", "vq-vae", "meanflow", "transfusion", "sana", "pytorch",
 ]
 dependencies = ["numpy>=1.24", "pillow>=10", "torch>=2.4"]
 

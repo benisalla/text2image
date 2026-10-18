@@ -2,9 +2,17 @@
 
 This page surveys the architecture families behind today's text-to-image systems
 and maps each one to the file in `text2image` that implements it. The goal of the
-repo is **to make the differences tangible**: every family is implemented from
-scratch with the same text encoder, data and evaluation, so you can read, train
-and compare them side by side.
+repo is **to make the differences tangible**: every family is implemented with the
+same text encoder, data and evaluation, so you can read, train and compare them
+side by side.
+
+**Contents**
+
+1. [Where the field is (2025-2026)](#1-where-the-field-is-2025-2026)
+2. [The twelve architectures implemented here](#2-the-twelve-architectures-implemented-here)
+3. [Shared pieces](#3-shared-pieces-so-the-comparison-is-fair)
+4. [Deliberate simplifications](#4-deliberate-simplifications-what-changes-at-scale)
+5. [References](#5-references)
 
 ## 1. Where the field is (2025-2026)
 
@@ -32,7 +40,7 @@ Trends that most current systems share:
   plain transformer on raw pixel patches works if the network predicts the *clean
   image* (x-prediction) rather than noise or velocity.
 * **Unified multimodal models** (HunyuanImage 3.0, Janus-Pro, BLIP3-o, Transfusion-style
-  MoE) put understanding and generation in one LLM; `transfusion` is a tiny version.
+  MoE) put understanding and generation in one LLM; `transfusion` is a small-scale version.
 * **One-step generation without distillation**: MeanFlow and its improved variants learn
   the average velocity of the flow and generate in a single network evaluation.
 
@@ -88,7 +96,7 @@ a standard single-scale VQ (`scales=(8,)`) and VAR's multi-scale residual quanti
 |---|---|
 | 32×32 pixels (pixel space) | a VAE / autoencoder latent (8× or 16× downsampling, 16-128 channels), except JiT-style pixel models |
 | ~1M-parameter models | 1B-80B parameters |
-| tiny word tokenizer + 1-layer text encoder | frozen CLIP / T5-XXL / LLM or VLM encoders |
+| word tokenizer (22-token vocabulary) + 1-layer text encoder | frozen CLIP / T5-XXL / LLM or VLM encoders |
 | learned / sin-cos positions | 2-D or 3-D RoPE (FLUX, Qwen-Image's MSRoPE) |
 | no KV cache in AR / VAR sampling | KV caching, speculative / parallel decoding |
 | VQ-VAE without GAN or perceptual loss | VQGAN-style adversarial + LPIPS losses, very large codebooks (or bitwise codes, Infinity) |
@@ -96,27 +104,40 @@ a standard single-scale VQ (`scales=(8,)`) and VAR's multi-scale residual quanti
 
 ## 5. References
 
-Implemented here:
-* Ho et al., *Denoising Diffusion Probabilistic Models*, 2020. Song et al., *DDIM*, 2021.
-* Rombach et al., *High-Resolution Image Synthesis with Latent Diffusion Models* (Stable Diffusion), 2022.
-* Peebles & Xie, *Scalable Diffusion Models with Transformers* (DiT), 2023.
-* Chen et al., *PixArt-α*, 2023.
-* Esser et al., *Scaling Rectified Flow Transformers for High-Resolution Image Synthesis* (SD3 / MMDiT), 2024. https://arxiv.org/abs/2403.03206
+### Diffusion and flow matching
+
+* Ho et al., *Denoising Diffusion Probabilistic Models*, NeurIPS 2020. https://arxiv.org/abs/2006.11239
+* Song et al., *Denoising Diffusion Implicit Models* (DDIM), ICLR 2021. https://arxiv.org/abs/2010.02502
+* Salimans & Ho, *Progressive Distillation for Fast Sampling of Diffusion Models* (v-prediction), ICLR 2022. https://arxiv.org/abs/2202.00512
+* Rombach et al., *High-Resolution Image Synthesis with Latent Diffusion Models* (Stable Diffusion), CVPR 2022. https://arxiv.org/abs/2112.10752
+* Peebles & Xie, *Scalable Diffusion Models with Transformers* (DiT), ICCV 2023. https://arxiv.org/abs/2212.09748
+* Chen et al., *PixArt-α*, ICLR 2024. https://arxiv.org/abs/2310.00426
+* Esser et al., *Scaling Rectified Flow Transformers for High-Resolution Image Synthesis* (SD3 / MMDiT), ICML 2024. https://arxiv.org/abs/2403.03206
 * Black Forest Labs, FLUX.1 (double- and single-stream blocks), 2024; FLUX.2, 2025. See also *Demystifying Flux Architecture*, https://arxiv.org/abs/2507.09595
 * Z-Image team, *Z-Image: An Efficient Image Generation Foundation Model with Single-Stream Diffusion Transformer*, 2025. https://arxiv.org/abs/2511.22699
+* Xie et al., *SANA: Efficient High-Resolution Image Synthesis with Linear Diffusion Transformers*, ICLR 2025. https://arxiv.org/abs/2410.10629
 * Li & He, *Back to Basics: Let Denoising Generative Models Denoise* (JiT), CVPR 2026. https://arxiv.org/abs/2511.13720
-* Ramesh et al., *Zero-Shot Text-to-Image Generation* (DALL-E), 2021. Yu et al., *Parti*, 2022. Sun et al., *LlamaGen*, 2024.
-* Chang et al., *MaskGIT*, 2022; *Muse*, 2023.
-* Tian et al., *Visual Autoregressive Modeling: Scalable Image Generation via Next-Scale Prediction* (VAR), NeurIPS 2024.
+
+### One-step and unified models
+
+* Geng et al., *Mean Flows for One-step Generative Modeling*, NeurIPS 2025. https://arxiv.org/abs/2505.13447
+* Geng et al., *Improved Mean Flows*, CVPR 2026. https://arxiv.org/abs/2512.02012
+* Zhou et al., *Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model*, ICLR 2025. https://arxiv.org/abs/2408.11039
+
+### Autoregressive and masked token models
+
+* Ramesh et al., *Zero-Shot Text-to-Image Generation* (DALL-E), ICML 2021. https://arxiv.org/abs/2102.12092
+* Yu et al., *Scaling Autoregressive Models for Content-Rich Text-to-Image Generation* (Parti), 2022. https://arxiv.org/abs/2206.10789
+* Sun et al., *Autoregressive Model Beats Diffusion: Llama for Scalable Image Generation* (LlamaGen), 2024. https://arxiv.org/abs/2406.06525
+* Chang et al., *MaskGIT: Masked Generative Image Transformer*, CVPR 2022. https://arxiv.org/abs/2202.04200
+* Chang et al., *Muse: Text-To-Image Generation via Masked Generative Transformers*, ICML 2023. https://arxiv.org/abs/2301.00704
+* Tian et al., *Visual Autoregressive Modeling: Scalable Image Generation via Next-Scale Prediction* (VAR), NeurIPS 2024. https://arxiv.org/abs/2404.02905
 * Han et al., *Infinity: Scaling Bitwise AutoRegressive Modeling for High-Resolution Image Synthesis*, CVPR 2025. https://arxiv.org/abs/2412.04431
 * Li et al., *Autoregressive Image Generation without Vector Quantization* (MAR), NeurIPS 2024. https://arxiv.org/abs/2406.11838
-* NextStep-1 (AR model with a flow-matching head), ICLR 2026.
+* StepFun, *NextStep-1: Toward Autoregressive Image Generation with Continuous Tokens at Scale*, ICLR 2026. https://arxiv.org/abs/2508.10711
 
-* Geng et al., *Mean Flows for One-step Generative Modeling*, NeurIPS 2025. https://arxiv.org/abs/2505.13447 ; *Improved Mean Flows*, CVPR 2026. https://arxiv.org/abs/2512.02012
-* Zhou et al., *Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model*, ICLR 2025.
-* Xie et al., *SANA: Efficient High-Resolution Image Synthesis with Linear Diffusion Transformers*, ICLR 2025.
+### Context
 
-Context:
 * Apple, *DiT-Air: Revisiting the Efficiency of Diffusion Model Architecture Design in Text to Image Generation*, 2025. https://arxiv.org/abs/2503.10618
-* Tencent, HunyuanImage 3.0 (80B MoE, unified autoregressive), 2025. https://arxiv.org/abs/2509.23951
-* Qwen-Image (MMDiT with a VLM text encoder), 2025.
+* Tencent, *HunyuanImage 3.0* (80B MoE, unified autoregressive), 2025. https://arxiv.org/abs/2509.23951
+* Qwen team, *Qwen-Image* (MMDiT with a VLM text encoder), 2025.
